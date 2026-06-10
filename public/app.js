@@ -1,6 +1,7 @@
 let docs = null;
 let allApis = [];
 let currentApiId = null;
+let collapsedGroups = {};
 
 async function init() {
     try {
@@ -43,38 +44,51 @@ function collectApis() {
 }
 
 function renderMenu(apiList) {
-    const menu = document.getElementById("apiMenu");
+  const menu = document.getElementById("apiMenu");
 
-    const groupMap = {};
+  const groupMap = {};
 
-    apiList.forEach(api => {
-        if (!groupMap[api.groupName]) {
-            groupMap[api.groupName] = [];
-        }
+  apiList.forEach(function (api) {
+    if (!groupMap[api.groupName]) {
+      groupMap[api.groupName] = [];
+    }
 
-        groupMap[api.groupName].push(api);
-    });
+    groupMap[api.groupName].push(api);
+  });
 
-    menu.innerHTML = Object.keys(groupMap).map(groupName => {
-        const items = groupMap[groupName].map(api => {
-            const activeClass = api.id === currentApiId ? "active" : "";
+  menu.innerHTML = Object.keys(groupMap).map(function (groupName) {
+    const isCollapsed = collapsedGroups[groupName] === true;
 
-            return `
+    const items = groupMap[groupName].map(function (api) {
+      const activeClass = api.id === currentApiId ? "active" : "";
+
+      return `
         <div class="api-item ${activeClass}" onclick="selectApi('${api.id}')">
           <span class="api-name">${escapeHtml(api.title)}</span>
           <span class="method ${api.method}">${api.method}</span>
         </div>
       `;
-        }).join("");
+    }).join("");
 
-        return `
+    return `
       <div class="group">
-        <div class="group-title">${escapeHtml(groupName)}</div>
-        ${items}
+        <div class="group-title group-title-row" onclick="toggleGroup('${escapeForJs(groupName)}')">
+          <span>${escapeHtml(groupName)}</span>
+          <span class="collapse-icon">${isCollapsed ? "›" : "⌄"}</span>
+        </div>
+        <div class="group-apis ${isCollapsed ? "collapsed" : ""}">
+          ${items}
+        </div>
       </div>
     `;
-    }).join("");
+  }).join("");
 }
+
+function toggleGroup(groupName) {
+  collapsedGroups[groupName] = !collapsedGroups[groupName];
+  renderMenu(getFilteredApis());
+}
+
 
 function selectApi(apiId) {
     const api = allApis.find(item => item.id === apiId);
@@ -87,9 +101,14 @@ function selectApi(apiId) {
 }
 
 function renderDetail(api) {
-    const detail = document.getElementById("apiDetail");
+  const detail = document.getElementById("apiDetail");
 
-    detail.innerHTML = `
+  const requestExample = formatJson(api.example);
+  const responseExample = formatJson(api.response);
+  const httpCode = generateHttpCode(api);
+  const axiosCode = generateAxiosCode(api);
+
+  detail.innerHTML = `
     <div class="breadcrumb">${escapeHtml(api.groupName)}</div>
 
     <div class="api-title">${escapeHtml(api.title)}</div>
@@ -97,6 +116,7 @@ function renderDetail(api) {
     <div class="api-path">
       <span class="method ${api.method}">${api.method}</span>
       <span class="path-text">${escapeHtml(api.path)}</span>
+      <button class="copy-btn" onclick="copyText('${escapeForJs(api.path)}')">复制路径</button>
     </div>
 
     <div class="api-desc">${escapeHtml(api.description || "")}</div>
@@ -106,15 +126,10 @@ function renderDetail(api) {
     ${renderParamsSection("Query 参数", api.query)}
     ${renderParamsSection("Body 参数", api.body)}
 
-    <div class="section">
-      <div class="section-title">请求示例</div>
-      <pre class="code-block">${escapeHtml(formatJson(api.example))}</pre>
-    </div>
-
-    <div class="section">
-      <div class="section-title">响应示例</div>
-      <pre class="code-block">${escapeHtml(formatJson(api.response))}</pre>
-    </div>
+    ${renderCodeSection("请求示例", requestExample, "复制请求")}
+    ${renderCodeSection("响应示例", responseExample, "复制响应")}
+    ${renderCodeSection("HTTP 请求代码", httpCode, "复制 HTTP")}
+    ${renderCodeSection("Axios 请求代码", axiosCode, "复制 Axios")}
   `;
 }
 
@@ -154,6 +169,42 @@ function renderParamsSection(title, params) {
   `;
 }
 
+function renderCodeSection(title, code, buttonText) {
+  return `
+    <div class="section">
+      <div class="section-title section-title-row">
+        <span>${escapeHtml(title)}</span>
+        <button class="copy-btn" onclick="copyText('${escapeForJs(code)}')">${buttonText}</button>
+      </div>
+      <pre class="code-block">${escapeHtml(code)}</pre>
+    </div>
+  `;
+}
+
+function generateHttpCode(api) {
+  const method = String(api.method || "GET").toUpperCase();
+  const path = api.path || "/";
+  const headers = api.headers || [];
+  const body = api.example || {};
+
+  let code = `${method} ${path} HTTP/1.1\n`;
+  code += `Host: localhost:3000\n`;
+
+  headers.forEach(function (header) {
+    if (header.name) {
+      code += `${header.name}: ${header.default || ""}\n`;
+    }
+  });
+
+  if (method !== "GET" && method !== "DELETE") {
+    code += `Content-Type: application/json\n`;
+    code += `\n`;
+    code += JSON.stringify(body, null, 2);
+  }
+
+  return code;
+}
+
 function bindSearch() {
     const searchInput = document.getElementById("searchInput");
 
@@ -175,6 +226,94 @@ function getFilteredApis() {
             api.groupName.toLowerCase().includes(keyword)
         );
     });
+}
+
+function generateAxiosCode(api) {
+  const method = String(api.method || "GET").toLowerCase();
+  const path = api.path || "/";
+  const headers = api.headers || [];
+  const body = api.example || {};
+
+  const headerObj = {};
+
+  headers.forEach(function (header) {
+    if (header.name) {
+      headerObj[header.name] = header.default || "";
+    }
+  });
+
+  if (method === "get" || method === "delete") {
+    return `axios.${method}("${path}", {
+  headers: ${JSON.stringify(headerObj, null, 2)}
+})`;
+  }
+
+  return `axios.${method}("${path}",
+  ${JSON.stringify(body, null, 2)},
+  {
+    headers: ${JSON.stringify(headerObj, null, 2)}
+  }
+)`;
+}
+
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () {
+      showToast("复制成功");
+    }).catch(function () {
+      fallbackCopyText(text);
+    });
+  } else {
+    fallbackCopyText(text);
+  }
+}
+
+function fallbackCopyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "-9999px";
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  try {
+    document.execCommand("copy");
+    showToast("复制成功");
+  } catch (error) {
+    console.error("复制失败:", error);
+    showToast("复制失败");
+  }
+
+  document.body.removeChild(textarea);
+}
+
+function showToast(message) {
+  let toast = document.getElementById("toast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast";
+    toast.className = "toast";
+    document.body.appendChild(toast);
+  }
+
+  toast.innerText = message;
+  toast.classList.add("show");
+
+  setTimeout(function () {
+    toast.classList.remove("show");
+  }, 1600);
+}
+
+function escapeForJs(value) {
+  return String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
 }
 
 function renderEmpty() {
