@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>接口文档查看器</title>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="project-header">
+                <div class="logo">API</div>
+                <div>
+                    <div id="projectName" class="project-title">接口文档</div>
+                    <div id="projectDesc" class="project-desc">Local API Docs Viewer</div>
+                </div>
+            </div>
+
+            <input id="searchInput" class="search" placeholder="搜索接口" />
+
+            <div id="apiMenu" class="api-menu"></div>
+        </aside>
+
+        <main class="content">
+            <div id="apiDetail" class="api-detail"></div>
+        </main>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+
+</html>
