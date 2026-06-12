@@ -1,5 +1,5 @@
 {
-    "projectName": "本地接口文档系统",
+    "projectName": "本地接口文档系统-mock",
     "description": "用于前后端联调的轻量级接口文档查看器",
     "groups": [
         {

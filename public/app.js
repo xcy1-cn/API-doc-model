@@ -2,10 +2,11 @@ let docs = null;
 let allApis = [];
 let currentApiId = null;
 let collapsedGroups = {};
+let path = "./JLapi-docs.json";
 
 async function init() {
     try {
-        const response = await fetch("./api-docs.json");
+        const response = await fetch(path);
         docs = await response.json();
 
         document.getElementById("projectName").innerText = docs.projectName || "接口文档";
