@@ -1,0 +1,2427 @@
+{
+  "projectName": "JapaneseLearning",
+  "description": "用于日语学习管理系统前后端联调。",
+  "baseUrl": "http://localhost:5251",
+  "version": "1.0.0",
+  "groups": [
+    {
+      "name": "用户认证",
+      "apis": [
+        {
+          "title": "管理员登录",
+          "method": "POST",
+          "path": "/api/Auth/login",
+          "description": "管理员使用用户名和密码登录，登录成功后返回 JWT token、用户名和角色。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "body": [
+            {
+              "name": "username",
+              "type": "string",
+              "required": true,
+              "description": "管理员用户名"
+            },
+            {
+              "name": "password",
+              "type": "string",
+              "required": true,
+              "description": "管理员密码"
+            }
+          ],
+          "example": {
+            "username": "admin",
+            "password": "123456"
+          },
+          "response": {
+            "code": 200,
+            "message": "Article created successfully.",
+            "data": {
+              "token": "jwt-token",
+              "username": "admin",
+              "role": "admin"
+            }
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "Invalid username or password.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "文章管理",
+      "apis": [
+        {
+          "title": "获取文章列表",
+          "method": "GET",
+          "path": "/api/Article",
+          "description": "分页查询文章列表，支持关键词、等级、分类筛选。该 Controller 标记了 [Authorize]，需要携带 JWT。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            }
+          ],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "搜索标题或正文"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "文章等级，例如 N5"
+            },
+            {
+              "name": "category",
+              "type": "string",
+              "required": false,
+              "description": "文章分类"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "keyword": "日本語",
+            "level": "N5",
+            "category": "reading",
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "获取文章详情",
+          "method": "GET",
+          "path": "/api/Article/{id}",
+          "description": "根据文章 ID 获取文章完整信息。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "title": "第一篇文章",
+              "content": "文章正文",
+              "level": "N5",
+              "category": "reading",
+              "createdAt": "2026-06-12T00:00:00",
+              "updatedAt": "2026-06-12T00:00:00"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Article not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "获取文章下的句子列表",
+          "method": "GET",
+          "path": "/api/Article/{id}/sentences",
+          "description": "根据文章 ID 获取该文章下全部句子，按 orderIndex 升序排序。当前代码直接返回句子数组，不包 ApiResponse。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": [
+            {
+              "id": 1,
+              "articleId": 1,
+              "japaneseText": "私は学生です。",
+              "chineseText": "我是学生。",
+              "romaji": "watashi wa gakusei desu",
+              "orderIndex": 1
+            }
+          ],
+          "errors": [
+            {
+              "code": 404,
+              "message": "Article not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "创建文章",
+          "method": "POST",
+          "path": "/api/Article",
+          "description": "创建一篇新文章。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "body": [
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "文章标题"
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "文章正文内容"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "文章等级，例如 N5/N4/N3"
+            },
+            {
+              "name": "category",
+              "type": "string",
+              "required": false,
+              "description": "文章分类，例如 reading/news/dialogue"
+            }
+          ],
+          "example": {
+            "title": "第一篇文章",
+            "content": "文章正文内容",
+            "level": "N5",
+            "category": "reading"
+          },
+          "response": {
+            "code": 200,
+            "message": "Article created successfully.",
+            "data": {
+              "id": 1,
+              "title": "第一篇文章",
+              "content": "文章正文内容",
+              "level": "N5",
+              "category": "reading",
+              "createdAt": "2026-06-12T00:00:00",
+              "updatedAt": "2026-06-12T00:00:00"
+            }
+          }
+        },
+        {
+          "title": "更新文章",
+          "method": "PUT",
+          "path": "/api/Article/{id}",
+          "description": "根据文章 ID 更新文章。请求体中的 id 必须与路径 id 一致。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID，必须与路径 id 一致"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "文章标题"
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "文章正文内容"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "文章等级，例如 N5/N4/N3"
+            },
+            {
+              "name": "category",
+              "type": "string",
+              "required": false,
+              "description": "文章分类，例如 reading/news/dialogue"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "title": "修改后的文章",
+            "content": "修改后的正文",
+            "level": "N4",
+            "category": "reading"
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "This article id is invalid.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "删除文章",
+          "method": "DELETE",
+          "path": "/api/Article/{id}",
+          "description": "根据文章 ID 删除文章。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "This article is not exist.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "句子管理",
+      "apis": [
+        {
+          "title": "获取句子列表",
+          "method": "GET",
+          "path": "/api/Sentence",
+          "description": "分页查询句子列表，支持关键词和文章 ID 筛选。",
+          "headers": [],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "搜索日文、中文或罗马音"
+            },
+            {
+              "name": "articleId",
+              "type": "number",
+              "required": false,
+              "description": "所属文章 ID"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "keyword": "学生",
+            "articleId": 1,
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "获取句子详情",
+          "method": "GET",
+          "path": "/api/Sentence/{id}",
+          "description": "根据句子 ID 获取基础句子信息。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "articleId": 1,
+              "japaneseText": "私は学生です。",
+              "chineseText": "我是学生。",
+              "romaji": "watashi wa gakusei desu",
+              "orderIndex": 1
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "This sentence is not exist.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "获取句子完整解析",
+          "method": "GET",
+          "path": "/api/Sentence/{id}/detail",
+          "description": "获取句子详情，并带出关联词汇和语法点。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "articleId": 1,
+              "japaneseText": "私は学生です。",
+              "chineseText": "我是学生。",
+              "romaji": "watashi wa gakusei desu",
+              "orderIndex": 1,
+              "createdAt": "2026-06-12T00:00:00",
+              "vocabularies": [],
+              "grammarPoints": []
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Article not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "创建句子",
+          "method": "POST",
+          "path": "/api/Sentence",
+          "description": "创建一个句子。articleId 必须存在。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "articleId",
+              "type": "number",
+              "required": true,
+              "description": "所属文章 ID"
+            },
+            {
+              "name": "japaneseText",
+              "type": "string",
+              "required": true,
+              "description": "日语原文"
+            },
+            {
+              "name": "chineseText",
+              "type": "string",
+              "required": true,
+              "description": "中文释义"
+            },
+            {
+              "name": "romaji",
+              "type": "string",
+              "required": false,
+              "description": "罗马音"
+            },
+            {
+              "name": "orderIndex",
+              "type": "number",
+              "required": true,
+              "description": "句子在文章中的排序"
+            }
+          ],
+          "example": {
+            "articleId": 1,
+            "japaneseText": "私は学生です。",
+            "chineseText": "我是学生。",
+            "romaji": "watashi wa gakusei desu",
+            "orderIndex": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "articleId": 1,
+              "japaneseText": "私は学生です。",
+              "chineseText": "我是学生。",
+              "romaji": "watashi wa gakusei desu",
+              "orderIndex": 1
+            }
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "ArticleId does not exist.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "更新句子",
+          "method": "PUT",
+          "path": "/api/Sentence/{id}",
+          "description": "根据句子 ID 更新句子。请求体中的 id 必须与路径 id 一致，articleId 必须存在。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "articleId",
+              "type": "number",
+              "required": true,
+              "description": "所属文章 ID"
+            },
+            {
+              "name": "japaneseText",
+              "type": "string",
+              "required": true,
+              "description": "日语原文"
+            },
+            {
+              "name": "chineseText",
+              "type": "string",
+              "required": true,
+              "description": "中文释义"
+            },
+            {
+              "name": "romaji",
+              "type": "string",
+              "required": false,
+              "description": "罗马音"
+            },
+            {
+              "name": "orderIndex",
+              "type": "number",
+              "required": true,
+              "description": "句子在文章中的排序"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "articleId": 1,
+            "japaneseText": "私は学生でした。",
+            "chineseText": "我曾经是学生。",
+            "romaji": "watashi wa gakusei deshita",
+            "orderIndex": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "Route id and sentence id are not the same.",
+              "data": null
+            },
+            {
+              "code": 400,
+              "message": "ArticleId does not exist.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Article not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "删除句子",
+          "method": "DELETE",
+          "path": "/api/Sentence/{id}",
+          "description": "根据句子 ID 删除句子。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Sentence not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "关联词汇到句子",
+          "method": "POST",
+          "path": "/api/Sentence/{sentenceId}/vocabularies/{vocabularyId}",
+          "description": "给指定句子添加一个词汇关联。",
+          "headers": [],
+          "params": [
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            },
+            {
+              "name": "vocabularyId",
+              "type": "number",
+              "required": true,
+              "description": "词汇 ID"
+            }
+          ],
+          "example": {
+            "sentenceId": 1,
+            "vocabularyId": 2
+          },
+          "response": {
+            "code": 200,
+            "message": "Vocabulary linked to sentence successfully.",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Sentence not found.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Vocabulary not found.",
+              "data": null
+            },
+            {
+              "code": 400,
+              "message": "This vocabulary is already linked to the sentence.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "取消句子词汇关联",
+          "method": "DELETE",
+          "path": "/api/Sentence/{sentenceId}/vocabularies/{vocabularyId}",
+          "description": "删除句子和词汇之间的关联关系。",
+          "headers": [],
+          "params": [
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            },
+            {
+              "name": "vocabularyId",
+              "type": "number",
+              "required": true,
+              "description": "词汇 ID"
+            }
+          ],
+          "example": {
+            "sentenceId": 1,
+            "vocabularyId": 2
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Relation not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "关联语法点到句子",
+          "method": "POST",
+          "path": "/api/Sentence/{sentenceId}/grammar-points/{grammarPointId}",
+          "description": "给指定句子添加一个语法点关联。",
+          "headers": [],
+          "params": [
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            },
+            {
+              "name": "grammarPointId",
+              "type": "number",
+              "required": true,
+              "description": "语法点 ID"
+            }
+          ],
+          "example": {
+            "sentenceId": 1,
+            "grammarPointId": 3
+          },
+          "response": {
+            "code": 200,
+            "message": "Grammar point linked to sentence successfully.",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Sentence not found.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Grammar point not found.",
+              "data": null
+            },
+            {
+              "code": 400,
+              "message": "This grammar point is already linked to the sentence.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "取消句子语法点关联",
+          "method": "DELETE",
+          "path": "/api/Sentence/{sentenceId}/grammar-points/{grammarPointId}",
+          "description": "删除句子和语法点之间的关联关系。",
+          "headers": [],
+          "params": [
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            },
+            {
+              "name": "grammarPointId",
+              "type": "number",
+              "required": true,
+              "description": "语法点 ID"
+            }
+          ],
+          "example": {
+            "sentenceId": 1,
+            "grammarPointId": 3
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Relation not found.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "词汇管理",
+      "apis": [
+        {
+          "title": "获取词汇列表",
+          "method": "GET",
+          "path": "/api/Vocabulary",
+          "description": "分页查询词汇，支持单词/读音/含义、等级、词性筛选。",
+          "headers": [],
+          "query": [
+            {
+              "name": "word",
+              "type": "string",
+              "required": false,
+              "description": "搜索单词、读音或含义"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N5"
+            },
+            {
+              "name": "partOfSpeech",
+              "type": "string",
+              "required": false,
+              "description": "词性"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "word": "学生",
+            "level": "N5",
+            "partOfSpeech": "noun",
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "获取词汇详情",
+          "method": "GET",
+          "path": "/api/Vocabulary/{id}",
+          "description": "根据词汇 ID 获取词汇信息。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "词汇 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "word": "学生",
+              "reading": "がくせい",
+              "meaning": "学生",
+              "partOfSpeech": "noun",
+              "level": "N5"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Vocabulary not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "创建词汇",
+          "method": "POST",
+          "path": "/api/Vocabulary",
+          "description": "创建一个词汇。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "word",
+              "type": "string",
+              "required": true,
+              "description": "单词"
+            },
+            {
+              "name": "reading",
+              "type": "string",
+              "required": false,
+              "description": "读音/假名"
+            },
+            {
+              "name": "meaning",
+              "type": "string",
+              "required": true,
+              "description": "中文含义"
+            },
+            {
+              "name": "partOfSpeech",
+              "type": "string",
+              "required": false,
+              "description": "词性"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N5/N4/N3"
+            }
+          ],
+          "example": {
+            "word": "学生",
+            "reading": "がくせい",
+            "meaning": "学生",
+            "partOfSpeech": "noun",
+            "level": "N5"
+          },
+          "response": {
+            "code": 200,
+            "message": "Vocabulary created successfully.",
+            "data": {
+              "id": 1,
+              "word": "学生",
+              "reading": "がくせい",
+              "meaning": "学生",
+              "partOfSpeech": "noun",
+              "level": "N5"
+            }
+          }
+        },
+        {
+          "title": "更新词汇",
+          "method": "PUT",
+          "path": "/api/Vocabulary/{id}",
+          "description": "根据词汇 ID 更新词汇。请求体中的 id 必须与路径 id 一致。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "词汇 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "word",
+              "type": "string",
+              "required": true,
+              "description": "单词"
+            },
+            {
+              "name": "reading",
+              "type": "string",
+              "required": false,
+              "description": "读音/假名"
+            },
+            {
+              "name": "meaning",
+              "type": "string",
+              "required": true,
+              "description": "中文含义"
+            },
+            {
+              "name": "partOfSpeech",
+              "type": "string",
+              "required": false,
+              "description": "词性"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N5/N4/N3"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "word": "学生",
+            "reading": "がくせい",
+            "meaning": "学生",
+            "partOfSpeech": "noun",
+            "level": "N5"
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "This vocabulary id is invalid.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Vocabulary not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "删除词汇",
+          "method": "DELETE",
+          "path": "/api/Vocabulary/{id}",
+          "description": "根据词汇 ID 删除词汇。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "词汇 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Vocabulary not found.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "语法管理",
+      "apis": [
+        {
+          "title": "获取语法点列表",
+          "method": "GET",
+          "path": "/api/GrammarPoint",
+          "description": "分页查询语法点，支持关键词和等级筛选。",
+          "headers": [],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "搜索标题、解释、结构或例句"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N4"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "keyword": "ために",
+            "level": "N4",
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "获取语法点详情",
+          "method": "GET",
+          "path": "/api/GrammarPoint/{id}",
+          "description": "根据语法点 ID 获取语法信息。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "语法点 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Searching grammarPoint successfully.",
+            "data": {
+              "id": 1,
+              "title": "〜ために",
+              "explanation": "表示目的",
+              "structure": "V辞書形 + ために",
+              "example": "日本へ行くために勉強します。",
+              "level": "N4"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Invalid grammarPoint.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "创建语法点",
+          "method": "POST",
+          "path": "/api/GrammarPoint",
+          "description": "创建一个语法点。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "语法标题"
+            },
+            {
+              "name": "explanation",
+              "type": "string",
+              "required": true,
+              "description": "语法解释"
+            },
+            {
+              "name": "structure",
+              "type": "string",
+              "required": false,
+              "description": "语法结构"
+            },
+            {
+              "name": "example",
+              "type": "string",
+              "required": false,
+              "description": "例句"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N5/N4/N3"
+            }
+          ],
+          "example": {
+            "title": "〜ために",
+            "explanation": "表示目的",
+            "structure": "V辞書形 + ために",
+            "example": "日本へ行くために勉強します。",
+            "level": "N4"
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "title": "〜ために",
+              "explanation": "表示目的",
+              "structure": "V辞書形 + ために",
+              "example": "日本へ行くために勉強します。",
+              "level": "N4"
+            }
+          }
+        },
+        {
+          "title": "更新语法点",
+          "method": "PUT",
+          "path": "/api/GrammarPoint/{id}",
+          "description": "根据语法点 ID 更新语法点。请求体中的 id 必须与路径 id 一致。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "语法点 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "语法标题"
+            },
+            {
+              "name": "explanation",
+              "type": "string",
+              "required": true,
+              "description": "语法解释"
+            },
+            {
+              "name": "structure",
+              "type": "string",
+              "required": false,
+              "description": "语法结构"
+            },
+            {
+              "name": "example",
+              "type": "string",
+              "required": false,
+              "description": "例句"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N5/N4/N3"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "title": "〜ために",
+            "explanation": "表示目的",
+            "structure": "V辞書形 + ために",
+            "example": "日本へ行くために勉強します。",
+            "level": "N4"
+          },
+          "response": {
+            "code": 200,
+            "message": "GrammarPoint changes successfully.",
+            "data": {
+              "id": 1
+            }
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "This grammar point id is invalid.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Grammar point not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "删除语法点",
+          "method": "DELETE",
+          "path": "/api/GrammarPoint/{id}",
+          "description": "根据语法点 ID 删除语法点。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "语法点 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "GrammarPoint removes successfully.",
+            "data": {
+              "id": 1
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Grammar point not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "关联语法点到句子",
+          "method": "POST",
+          "path": "/api/GrammarPoint/{sentenceId}/grammar-points/{grammarPointId}",
+          "description": "在 GrammarPointController 中提供的句子-语法点关联接口。功能与 /api/Sentence/{sentenceId}/grammar-points/{grammarPointId} 类似。",
+          "headers": [],
+          "params": [
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": true,
+              "description": "句子 ID"
+            },
+            {
+              "name": "grammarPointId",
+              "type": "number",
+              "required": true,
+              "description": "语法点 ID"
+            }
+          ],
+          "example": {
+            "sentenceId": 1,
+            "grammarPointId": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Grammar point linked to sentence successfully.",
+            "data": {
+              "sentenceId": 1,
+              "grammarPointId": 1
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Sentence not found.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Grammar point not found.",
+              "data": null
+            },
+            {
+              "code": 400,
+              "message": "This grammar point is already linked to the sentence.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "题目管理",
+      "apis": [
+        {
+          "title": "获取题目列表",
+          "method": "GET",
+          "path": "/api/Question",
+          "description": "分页查询题目，支持题目类型和关键词筛选。",
+          "headers": [],
+          "query": [
+            {
+              "name": "type",
+              "type": "string",
+              "required": false,
+              "description": "题目类型，例如 vocabulary_choice"
+            },
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "搜索题干、选项或解析"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "type": "vocabulary_choice",
+            "keyword": "学生",
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "获取题目详情",
+          "method": "GET",
+          "path": "/api/Question/{id}",
+          "description": "根据题目 ID 获取题目信息。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "题目 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Searching question successfully.",
+            "data": {
+              "id": 1,
+              "type": "vocabulary_choice",
+              "stem": "学生 的意思是？",
+              "optionA": "老师",
+              "optionB": "学生",
+              "optionC": "公司",
+              "optionD": "学校",
+              "answer": "B",
+              "explanation": "学生 = がくせい"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Question not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "创建题目",
+          "method": "POST",
+          "path": "/api/Question",
+          "description": "创建一个题目。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "required": true,
+              "description": "题目类型，例如 vocabulary_choice"
+            },
+            {
+              "name": "stem",
+              "type": "string",
+              "required": true,
+              "description": "题干"
+            },
+            {
+              "name": "optionA",
+              "type": "string",
+              "required": false,
+              "description": "选项 A"
+            },
+            {
+              "name": "optionB",
+              "type": "string",
+              "required": false,
+              "description": "选项 B"
+            },
+            {
+              "name": "optionC",
+              "type": "string",
+              "required": false,
+              "description": "选项 C"
+            },
+            {
+              "name": "optionD",
+              "type": "string",
+              "required": false,
+              "description": "选项 D"
+            },
+            {
+              "name": "answer",
+              "type": "string",
+              "required": true,
+              "description": "正确答案"
+            },
+            {
+              "name": "explanation",
+              "type": "string",
+              "required": false,
+              "description": "答案解析"
+            },
+            {
+              "name": "articleId",
+              "type": "number",
+              "required": false,
+              "description": "关联文章 ID"
+            },
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": false,
+              "description": "关联句子 ID"
+            }
+          ],
+          "example": {
+            "type": "vocabulary_choice",
+            "stem": "学生 的意思是？",
+            "optionA": "老师",
+            "optionB": "学生",
+            "optionC": "公司",
+            "optionD": "学校",
+            "answer": "B",
+            "explanation": "学生 = がくせい",
+            "articleId": 1,
+            "sentenceId": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1
+            }
+          }
+        },
+        {
+          "title": "更新题目",
+          "method": "PUT",
+          "path": "/api/Question/{id}",
+          "description": "根据题目 ID 更新题目。请求体中的 id 必须与路径 id 一致。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "题目 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": false,
+              "description": "更新时需要与路径 id 一致，创建时可省略"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "required": true,
+              "description": "题目类型，例如 vocabulary_choice"
+            },
+            {
+              "name": "stem",
+              "type": "string",
+              "required": true,
+              "description": "题干"
+            },
+            {
+              "name": "optionA",
+              "type": "string",
+              "required": false,
+              "description": "选项 A"
+            },
+            {
+              "name": "optionB",
+              "type": "string",
+              "required": false,
+              "description": "选项 B"
+            },
+            {
+              "name": "optionC",
+              "type": "string",
+              "required": false,
+              "description": "选项 C"
+            },
+            {
+              "name": "optionD",
+              "type": "string",
+              "required": false,
+              "description": "选项 D"
+            },
+            {
+              "name": "answer",
+              "type": "string",
+              "required": true,
+              "description": "正确答案"
+            },
+            {
+              "name": "explanation",
+              "type": "string",
+              "required": false,
+              "description": "答案解析"
+            },
+            {
+              "name": "articleId",
+              "type": "number",
+              "required": false,
+              "description": "关联文章 ID"
+            },
+            {
+              "name": "sentenceId",
+              "type": "number",
+              "required": false,
+              "description": "关联句子 ID"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "type": "vocabulary_choice",
+            "stem": "学生 的意思是？",
+            "optionA": "老师",
+            "optionB": "学生",
+            "optionC": "公司",
+            "optionD": "学校",
+            "answer": "B",
+            "explanation": "学生 = がくせい",
+            "articleId": 1,
+            "sentenceId": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Sentence not found.",
+              "data": null
+            },
+            {
+              "code": 404,
+              "message": "Question not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "删除题目",
+          "method": "DELETE",
+          "path": "/api/Question/{id}",
+          "description": "根据题目 ID 删除题目。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "题目 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": null
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Sentence not found.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Excel 批量导入",
+      "apis": [
+        {
+          "title": "导入词汇 Excel",
+          "method": "POST",
+          "path": "/api/Import/vocabularies",
+          "description": "后台上传 Vocabulary Excel 文件，批量导入词汇数据。接口需要 JWT 鉴权，文件字段名必须为 file，Content-Type 为 multipart/form-data。后端会进行表头校验、逐行数据校验，并返回成功数量、失败行数和错误详情。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "文件上传请求体类型，由浏览器/Postman 自动生成 boundary",
+              "default": "multipart/form-data"
+            }
+          ],
+          "body": [
+            {
+              "name": "file",
+              "type": "file",
+              "required": true,
+              "description": "Vocabulary Excel 文件，建议 .xlsx 格式。表头必须为：Word、Reading、Meaning、PartOfSpeech、Level。"
+            }
+          ],
+          "example": {
+            "file": "vocabulary-template.xlsx",
+            "headers": [
+              "Word",
+              "Reading",
+              "Meaning",
+              "PartOfSpeech",
+              "Level"
+            ],
+            "rows": [
+              {
+                "Word": "学生",
+                "Reading": "がくせい",
+                "Meaning": "学生",
+                "PartOfSpeech": "noun",
+                "Level": "N5"
+              }
+            ]
+          },
+          "response": {
+            "code": 200,
+            "message": "Vocabulary import completed.",
+            "data": {
+              "successCount": 1,
+              "failCount": 0,
+              "errors": []
+            }
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "Excel file is required.",
+              "data": null
+            },
+            {
+              "code": 200,
+              "message": "Vocabulary import completed.",
+              "data": {
+                "successCount": 0,
+                "failCount": 1,
+                "errors": [
+                  {
+                    "rowNumber": 3,
+                    "field": "Word",
+                    "message": "单词不能为空。"
+                  }
+                ]
+              }
+            },
+            {
+              "code": 401,
+              "message": "Unauthorized",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "导入语法点 Excel",
+          "method": "POST",
+          "path": "/api/Import/grammar-points",
+          "description": "后台上传 GrammarPoint Excel 文件，批量导入语法点数据。接口需要 JWT 鉴权，文件字段名必须为 file，Content-Type 为 multipart/form-data。后端会进行表头校验、逐行数据校验，并返回成功数量、失败行数和错误详情。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "文件上传请求体类型，由浏览器/Postman 自动生成 boundary",
+              "default": "multipart/form-data"
+            }
+          ],
+          "body": [
+            {
+              "name": "file",
+              "type": "file",
+              "required": true,
+              "description": "GrammarPoint Excel 文件，建议 .xlsx 格式。表头必须为：Title、Explanation、Structure、Example、Level。"
+            }
+          ],
+          "example": {
+            "file": "grammar-point-template.xlsx",
+            "headers": [
+              "Title",
+              "Explanation",
+              "Structure",
+              "Example",
+              "Level"
+            ],
+            "rows": [
+              {
+                "Title": "〜ために",
+                "Explanation": "表示目的",
+                "Structure": "V辞書形 + ために",
+                "Example": "日本へ行くために勉強します。",
+                "Level": "N4"
+              }
+            ]
+          },
+          "response": {
+            "code": 200,
+            "message": "Grammar point import completed.",
+            "data": {
+              "successCount": 1,
+              "failCount": 0,
+              "errors": []
+            }
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "Excel file is required.",
+              "data": null
+            },
+            {
+              "code": 200,
+              "message": "Grammar point import completed.",
+              "data": {
+                "successCount": 0,
+                "failCount": 1,
+                "errors": [
+                  {
+                    "rowNumber": 3,
+                    "field": "Title",
+                    "message": "语法标题不能为空。"
+                  }
+                ]
+              }
+            },
+            {
+              "code": 401,
+              "message": "Unauthorized",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "导入题目 Excel",
+          "method": "POST",
+          "path": "/api/Import/questions",
+          "description": "后台上传 Question Excel 文件，批量导入题目数据。接口需要 JWT 鉴权，文件字段名必须为 file，Content-Type 为 multipart/form-data。后端会进行表头校验、逐行数据校验，并返回成功数量、失败行数和错误详情。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "description": "管理员登录后获取的 JWT token",
+              "default": "Bearer {{token}}"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "文件上传请求体类型，由浏览器/Postman 自动生成 boundary",
+              "default": "multipart/form-data"
+            }
+          ],
+          "body": [
+            {
+              "name": "file",
+              "type": "file",
+              "required": true,
+              "description": "Question Excel 文件，建议 .xlsx 格式。表头必须为：ArticleId、SentenceId、Type、Stem、OptionA、OptionB、OptionC、OptionD、Answer、Explanation、Level。"
+            }
+          ],
+          "example": {
+            "file": "question-template.xlsx",
+            "headers": [
+              "ArticleId",
+              "SentenceId",
+              "Type",
+              "Stem",
+              "OptionA",
+              "OptionB",
+              "OptionC",
+              "OptionD",
+              "Answer",
+              "Explanation",
+              "Level"
+            ],
+            "rows": [
+              {
+                "ArticleId": 1,
+                "SentenceId": 1,
+                "Type": "vocabulary_choice",
+                "Stem": "学生 的意思是？",
+                "OptionA": "老师",
+                "OptionB": "学生",
+                "OptionC": "公司",
+                "OptionD": "学校",
+                "Answer": "B",
+                "Explanation": "学生 = がくせい",
+                "Level": "N5"
+              }
+            ]
+          },
+          "response": {
+            "code": 200,
+            "message": "Question import completed.",
+            "data": {
+              "successCount": 1,
+              "failCount": 0,
+              "errors": []
+            }
+          },
+          "errors": [
+            {
+              "code": 400,
+              "message": "Excel file is required.",
+              "data": null
+            },
+            {
+              "code": 200,
+              "message": "Question import completed.",
+              "data": {
+                "successCount": 0,
+                "failCount": 1,
+                "errors": [
+                  {
+                    "rowNumber": 3,
+                    "field": "Answer",
+                    "message": "正确答案只能是 A、B、C、D。"
+                  }
+                ]
+              }
+            },
+            {
+              "code": 401,
+              "message": "Unauthorized",
+              "data": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "前台公开接口",
+      "apis": [
+        {
+          "title": "公开文章列表",
+          "method": "GET",
+          "path": "/api/Public/articles",
+          "description": "前台公开文章列表，返回文章摘要信息。",
+          "headers": [],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "搜索标题或正文"
+            },
+            {
+              "name": "level",
+              "type": "string",
+              "required": false,
+              "description": "等级，例如 N5"
+            },
+            {
+              "name": "category",
+              "type": "string",
+              "required": false,
+              "description": "分类"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "keyword": "日本語",
+            "level": "N5",
+            "category": "reading",
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "公开文章详情",
+          "method": "GET",
+          "path": "/api/Public/articles/{id}",
+          "description": "前台根据文章 ID 获取文章详情。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "title": "第一篇文章",
+              "content": "文章正文",
+              "level": "N5",
+              "category": "reading",
+              "createdAt": "2026-06-12T00:00:00",
+              "updatedAt": "2026-06-12T00:00:00"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Article not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "公开文章句子列表",
+          "method": "GET",
+          "path": "/api/Public/articles/{id}/sentences",
+          "description": "前台根据文章 ID 获取文章下的句子列表。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "文章 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": [
+              {
+                "id": 1,
+                "articleId": 1,
+                "japaneseText": "私は学生です。",
+                "chineseText": "我是学生。",
+                "romaji": "watashi wa gakusei desu",
+                "orderIndex": 1
+              }
+            ]
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Article not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "公开题目列表",
+          "method": "GET",
+          "path": "/api/Public/questions",
+          "description": "前台分页获取题目列表。返回内容不包含 answer 和 explanation。",
+          "headers": [],
+          "query": [
+            {
+              "name": "type",
+              "type": "string",
+              "required": false,
+              "description": "题目类型"
+            },
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "搜索题干或选项"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "type": "vocabulary_choice",
+            "keyword": "学生",
+            "page": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "total": 0,
+              "page": 1,
+              "pageSize": 10,
+              "items": []
+            }
+          }
+        },
+        {
+          "title": "公开题目详情",
+          "method": "GET",
+          "path": "/api/Public/questions/{id}",
+          "description": "前台获取题目详情。返回内容不包含 answer 和 explanation。",
+          "headers": [],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "题目 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "id": 1,
+              "type": "vocabulary_choice",
+              "stem": "学生 的意思是？",
+              "optionA": "老师",
+              "optionB": "学生",
+              "optionC": "公司",
+              "optionD": "学校",
+              "articleId": 1,
+              "sentenceId": 1,
+              "createdAt": "2026-06-12T00:00:00"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Question not found.",
+              "data": null
+            }
+          ]
+        },
+        {
+          "title": "提交题目答案",
+          "method": "POST",
+          "path": "/api/Public/questions/{id}/submit",
+          "description": "前台提交答案，后端判断是否正确并返回正确答案和解析。",
+          "headers": [
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "description": "请求体类型",
+              "default": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "题目 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "answer",
+              "type": "string",
+              "required": true,
+              "description": "用户提交的答案，例如 A/B/C/D"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "answer": "B"
+          },
+          "response": {
+            "code": 200,
+            "message": "success",
+            "data": {
+              "isCorrect": true,
+              "correctAnswer": "B",
+              "explanation": "学生 = がくせい"
+            }
+          },
+          "errors": [
+            {
+              "code": 404,
+              "message": "Question not found.",
+              "data": null
+            },
+            {
+              "code": 400,
+              "message": "Answer is required.",
+              "data": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
