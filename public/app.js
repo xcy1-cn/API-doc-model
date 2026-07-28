@@ -2,7 +2,7 @@ let docs = null;
 let allApis = [];
 let currentApiId = null;
 let collapsedGroups = {};
-let path = "./JLapi-docs-with-import.json";
+let path = "./risk-hazard-api-docs.json";
 
 async function init() {
     try {

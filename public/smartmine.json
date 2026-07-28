@@ -1,0 +1,1354 @@
+{
+  "projectName": "SmartMine 隐患—预警—整改接口文档",
+  "description": "依据 2026-07-28 FW4 和当前后端代码生成。仅覆盖隐患、预警、整改、审核模块；所有接口响应均由 ApiResultFilter 统一包装。",
+  "enums": {
+    "WarningLevel": {
+      "1": "蓝色",
+      "2": "黄色",
+      "3": "橙色",
+      "4": "红色"
+    },
+    "HazardStatus": {
+      "0": "待初审",
+      "1": "已生成预警",
+      "2": "初审无效"
+    },
+    "WarningEventStatus": {
+      "0": "整改中",
+      "1": "待审核",
+      "2": "已整改"
+    },
+    "HazardWarningDisplayStatus": {
+      "0": "待处理",
+      "1": "待整改",
+      "2": "待审核",
+      "3": "已退回",
+      "4": "已整改"
+    },
+    "WarningRectificationTaskType": {
+      "0": "内业整改",
+      "1": "外业整改"
+    },
+    "WarningRectificationTaskStatus": {
+      "0": "待提交",
+      "1": "已提交"
+    },
+    "WarningReviewResult": {
+      "0": "通过",
+      "1": "驳回"
+    },
+    "HazardSourceType": {
+      "0": "设备上传",
+      "1": "H5 移动端上报"
+    },
+    "WarningType": [
+      "VehicleSafety",
+      "PersonnelSafety",
+      "BoundaryWarning",
+      "EnvironmentalMonitoring",
+      "SlopeMonitoring",
+      "PlantControlWarning",
+      "EquipmentSmartDispatchWarning"
+    ]
+  },
+  "models": {
+    "ApiResult": {
+      "code": "number",
+      "message": "string",
+      "isSuccess": "boolean，只读，code == 200 时为 true",
+      "timeStamp": "datetime",
+      "data": "T"
+    },
+    "PagedList": {
+      "pageIndex": "number",
+      "pageSize": "number",
+      "totalCount": "number",
+      "totalPages": "number",
+      "items": "T[]",
+      "hasPrevPages": "boolean",
+      "hasNextPages": "boolean"
+    },
+    "HazardListDto": {
+      "id": "number",
+      "title": "string",
+      "code": "string",
+      "hazardType": "number",
+      "hazardLevel": "number：1蓝、2黄、3橙、4红",
+      "status": "number：0待初审、1已生成预警、2初审无效",
+      "displayStatus": "number|null：0待处理、1待整改、2待审核、3已退回、4已整改",
+      "sourceType": "number：0设备、1移动端",
+      "mineBasicInfoId": "number|null",
+      "deviceId": "number|null",
+      "sourceEventId": "string|null",
+      "departmentId": "number|null",
+      "location": "string|null",
+      "hasWarning": "boolean",
+      "warningEventId": "number|null",
+      "createTime": "datetime",
+      "updateTime": "datetime|null"
+    },
+    "HazardDetailDto": {
+      "inherits": "HazardListDto",
+      "description": "string|null",
+      "longitude": "decimal|null",
+      "latitude": "decimal|null",
+      "altitude": "decimal|null",
+      "rectificationRequirement": "string|null",
+      "reviewUserId": "number|null",
+      "rejectReason": "string|null",
+      "createUserId": "number|null",
+      "warning": "HazardWarningSummaryDto|null"
+    },
+    "HazardWarningSummaryDto": {
+      "warningEventId": "number",
+      "warningTitle": "string",
+      "warningLevel": "number：1蓝、2黄、3橙、4红",
+      "status": "number",
+      "createTime": "datetime"
+    },
+    "WarningEventListDto": {
+      "id": "number",
+      "hazardId": "number",
+      "hazardTitle": "string",
+      "hazardCode": "string",
+      "title": "string",
+      "type": "string，预警分类字段保留但 Web/H5 不展示人工选择",
+      "warningLevel": "number：1蓝、2黄、3橙、4红",
+      "status": "number：0整改中、1待审核、2已整改",
+      "displayStatus": "number：1待整改、2待审核、3已退回、4已整改",
+      "taskCount": "number",
+      "submittedTaskCount": "number",
+      "createTime": "datetime",
+      "updateTime": "datetime|null"
+    },
+    "WarningEventDetailDto": {
+      "inherits": "WarningEventListDto",
+      "message": "string",
+      "rejectReason": "string|null",
+      "tasks": "WarningRectificationTaskDto[]"
+    },
+    "WarningRectificationTaskDto": {
+      "id": "number",
+      "warningEventId": "number",
+      "warningTitle": "string|null",
+      "warningLevel": "number|null",
+      "warningStatus": "number|null",
+      "hazardId": "number|null",
+      "hazardTitle": "string|null",
+      "hazardCode": "string|null",
+      "taskType": "number：0内业、1外业",
+      "assignedToUserId": "number|null；内业任务为空，外业任务必填且可为内业或外业用户",
+      "assignedToUserName": "string|null",
+      "status": "number：0待提交、1已提交",
+      "assignedByUserId": "number|null",
+      "assignedTime": "datetime|null",
+      "createTime": "datetime",
+      "updateTime": "datetime|null"
+    },
+    "WarningEventMediaDto": {
+      "id": "number",
+      "mediaUrl": "string",
+      "fileName": "string|null",
+      "contentType": "string|null",
+      "fileSize": "number|null",
+      "sortOrder": "number"
+    },
+    "ErrorResponse": {
+      "code": "number",
+      "message": "string",
+      "isSuccess": false,
+      "timeStamp": "datetime",
+      "data": null,
+      "commonCodes": "400参数错误、401未登录、403无权限、404不存在、409状态冲突、500服务异常"
+    }
+  },
+  "groups": [
+    {
+      "name": "隐患管理",
+      "apis": [
+        {
+          "title": "查询隐患列表",
+          "method": "GET",
+          "path": "/api/hazards",
+          "description": "按权限和数据归属分页查询隐患。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "标题或编号关键词"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": false,
+              "description": "隐患类型"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": false,
+              "description": "等级：1蓝、2黄、3橙、4红"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": false,
+              "description": "隐患状态：0待初审、1已生成预警、2初审无效"
+            },
+            {
+              "name": "sourceType",
+              "type": "number",
+              "required": false,
+              "description": "来源：0设备、1移动端"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山 ID"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 ID"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 ID"
+            },
+            {
+              "name": "hasWarning",
+              "type": "boolean",
+              "required": false,
+              "description": "是否已生成预警"
+            },
+            {
+              "name": "warningEventId",
+              "type": "number",
+              "required": false,
+              "description": "预警 ID"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "page": 1,
+            "size": 10,
+            "hazardLevel": 1,
+            "status": 0
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": {
+              "pageIndex": 1,
+              "pageSize": 10,
+              "totalCount": 0,
+              "totalPages": 0,
+              "items": [
+                "HazardListDto[]，字段见 models.HazardListDto"
+              ],
+              "hasPrevPages": false,
+              "hasNextPages": false
+            }
+          }
+        },
+        {
+          "title": "获取隐患详情",
+          "method": "GET",
+          "path": "/api/hazards/{id}",
+          "description": "获取隐患详情及关联预警摘要。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "隐患 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": "HazardDetailDto，字段见 models.HazardDetailDto"
+          }
+        },
+        {
+          "title": "H5 上报隐患",
+          "method": "POST",
+          "path": "/api/hazards",
+          "description": "移动端上报隐患；后端写入来源 Mobile。需要 hazard:hazard:add。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "JSON 请求体"
+            }
+          ],
+          "body": [
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "隐患标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "隐患编号，必须唯一"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "隐患描述"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": true,
+              "description": "隐患类型，沿用现有业务映射"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": true,
+              "description": "隐患等级：1蓝、2黄、3橙、4红"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 ID"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "来源设备 ID；设备上报时必填"
+            },
+            {
+              "name": "sourceEventId",
+              "type": "string",
+              "required": false,
+              "description": "来源侧事件编号；设备上报时必填并用于幂等"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "所属部门 ID"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "位置说明"
+            },
+            {
+              "name": "longitude",
+              "type": "decimal",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "decimal",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "decimal",
+              "required": false,
+              "description": "海拔"
+            },
+            {
+              "name": "rectificationRequirement",
+              "type": "string",
+              "required": false,
+              "description": "整改要求"
+            }
+          ],
+          "example": {
+            "title": "边坡落石隐患",
+            "code": "HZ-20260728-001",
+            "description": "作业面发现落石",
+            "hazardType": 1,
+            "hazardLevel": 2,
+            "location": "一号作业面"
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        },
+        {
+          "title": "设备上报隐患",
+          "method": "POST",
+          "path": "/api/hazards/device",
+          "description": "设备来源上报；deviceId 和 sourceEventId 必填且组合幂等。当前接口限 Web ClientType。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "JSON 请求体"
+            }
+          ],
+          "body": [
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "隐患标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "隐患编号，必须唯一"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "隐患描述"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": true,
+              "description": "隐患类型，沿用现有业务映射"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": true,
+              "description": "隐患等级：1蓝、2黄、3橙、4红"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 ID"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": true,
+              "description": "来源设备 ID；设备上报时必填"
+            },
+            {
+              "name": "sourceEventId",
+              "type": "string",
+              "required": true,
+              "description": "来源侧事件编号；设备上报时必填并用于幂等"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "所属部门 ID"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "位置说明"
+            },
+            {
+              "name": "longitude",
+              "type": "decimal",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "decimal",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "decimal",
+              "required": false,
+              "description": "海拔"
+            },
+            {
+              "name": "rectificationRequirement",
+              "type": "string",
+              "required": false,
+              "description": "整改要求"
+            }
+          ],
+          "example": {
+            "title": "设备越界预警",
+            "code": "HZ-DEVICE-001",
+            "hazardType": 1,
+            "hazardLevel": 3,
+            "deviceId": 10,
+            "sourceEventId": "device-event-20260728-001"
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        },
+        {
+          "title": "修改待初审隐患",
+          "method": "PUT",
+          "path": "/api/hazards/{id}",
+          "description": "仅 Web 且隐患状态允许时修改。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "JSON 请求体"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "隐患 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "隐患标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "隐患编号，必须唯一"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "隐患描述"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": true,
+              "description": "隐患类型，沿用现有业务映射"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": true,
+              "description": "隐患等级：1蓝、2黄、3橙、4红"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 ID"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "来源设备 ID；设备上报时必填"
+            },
+            {
+              "name": "sourceEventId",
+              "type": "string",
+              "required": false,
+              "description": "来源侧事件编号；设备上报时必填并用于幂等"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "所属部门 ID"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "位置说明"
+            },
+            {
+              "name": "longitude",
+              "type": "decimal",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "decimal",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "decimal",
+              "required": false,
+              "description": "海拔"
+            },
+            {
+              "name": "rectificationRequirement",
+              "type": "string",
+              "required": false,
+              "description": "整改要求"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "title": "修改后的标题",
+            "code": "HZ-001",
+            "hazardType": 1,
+            "hazardLevel": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        },
+        {
+          "title": "删除待初审隐患",
+          "method": "DELETE",
+          "path": "/api/hazards/{id}",
+          "description": "仅 Web；只允许删除尚未生成预警的待初审隐患。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "隐患 ID"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        },
+        {
+          "title": "初审判定无效",
+          "method": "POST",
+          "path": "/api/hazards/{hazardId}/initial-review/reject",
+          "description": "判定隐患无效，不生成预警。需要初审权限和内业身份；当前路由限 Web ClientType。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "JSON 请求体"
+            }
+          ],
+          "params": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "reason",
+              "type": "string",
+              "required": true,
+              "description": "无效原因，最多 500 字"
+            }
+          ],
+          "example": {
+            "hazardId": 1,
+            "reason": "现场复核后确认不存在隐患"
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        },
+        {
+          "title": "初审有效并生成预警",
+          "method": "POST",
+          "path": "/api/hazards/{hazardId}/initial-review/approve",
+          "description": "一条隐患生成一条预警和一个整改任务。预警类型 UI 隐藏，未传时后端使用内部默认值。当前路由限 Web ClientType。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "JSON 请求体"
+            }
+          ],
+          "params": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "warningTitle",
+              "type": "string",
+              "required": true,
+              "description": "预警标题，最多 200 字；前端沿用隐患标题"
+            },
+            {
+              "name": "warningMessage",
+              "type": "string",
+              "required": false,
+              "description": "预警内容，最多 500 字；未传时沿用隐患描述"
+            },
+            {
+              "name": "warningType",
+              "type": "string",
+              "required": false,
+              "description": "内部预警类型；Web/H5 不展示人工选择，默认 HazardTransfer"
+            },
+            {
+              "name": "warningLevel",
+              "type": "number",
+              "required": true,
+              "description": "1蓝、2黄、3橙、4红"
+            },
+            {
+              "name": "taskType",
+              "type": "number",
+              "required": true,
+              "description": "0内业整改、1外业整改"
+            },
+            {
+              "name": "assignedToUserId",
+              "type": "number",
+              "required": false,
+              "description": "外业整改必填；可选择有效内业或外业用户。内业整改必须为空"
+            },
+            {
+              "name": "remark",
+              "type": "string",
+              "required": false,
+              "description": "初审意见，最多 1000 字"
+            }
+          ],
+          "example": {
+            "hazardId": 1,
+            "warningTitle": "边坡落石隐患",
+            "warningLevel": 2,
+            "taskType": 1,
+            "assignedToUserId": 8,
+            "remark": "请及时处理"
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": {
+              "warningEventId": 10,
+              "task": "WarningRectificationTaskDto，字段见 models.WarningRectificationTaskDto"
+            }
+          }
+        },
+        {
+          "title": "查询隐患全流程时间线",
+          "method": "GET",
+          "path": "/api/hazards/{hazardId}/timeline",
+          "description": "返回隐患和预警阶段的聚合业务流水。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 ID"
+            }
+          ],
+          "example": {
+            "hazardId": 1
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": [
+              {
+                "stage": "Hazard",
+                "displayStatus": 0,
+                "recordId": 1,
+                "hazardId": 1,
+                "relationId": null,
+                "warningEventId": null,
+                "operationType": 0,
+                "beforeStatus": null,
+                "afterStatus": 0,
+                "operatorUserId": 2,
+                "operatorUserName": "张三",
+                "operationBatchId": "00000000-0000-0000-0000-000000000000",
+                "operationTime": "2026-07-28T10:00:00Z",
+                "remark": "隐患创建"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "预警—整改—审核",
+      "apis": [
+        {
+          "title": "查询预警列表",
+          "method": "GET",
+          "path": "/api/warning-events",
+          "description": "分页查询预警台账或待审核预警。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "预警标题、内容或隐患关键词"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": false,
+              "description": "预警状态：0整改中、1待审核、2已整改"
+            },
+            {
+              "name": "warningLevel",
+              "type": "number",
+              "required": false,
+              "description": "等级：1蓝、2黄、3橙、4红"
+            },
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": false,
+              "description": "隐患 ID"
+            },
+            {
+              "name": "taskType",
+              "type": "number",
+              "required": false,
+              "description": "整改方式：0内业、1外业"
+            },
+            {
+              "name": "assignedToUserId",
+              "type": "number",
+              "required": false,
+              "description": "整改负责人用户 ID"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "page": 1,
+            "size": 10,
+            "status": 1,
+            "warningLevel": 4
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": {
+              "pageIndex": 1,
+              "pageSize": 10,
+              "totalCount": 0,
+              "totalPages": 0,
+              "items": [
+                "WarningEventListDto[]，字段见 models.WarningEventListDto"
+              ],
+              "hasPrevPages": false,
+              "hasNextPages": false
+            }
+          }
+        },
+        {
+          "title": "获取预警详情",
+          "method": "GET",
+          "path": "/api/warning-events/{id}",
+          "description": "获取预警、隐患摘要及唯一整改任务。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "预警 ID"
+            }
+          ],
+          "example": {
+            "id": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": "WarningEventDetailDto，字段见 models.WarningEventDetailDto"
+          }
+        },
+        {
+          "title": "查询预警时间线和历史材料",
+          "method": "GET",
+          "path": "/api/warning-events/{id}/timeline",
+          "description": "返回提交、审核、驳回和历史图片材料。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "预警 ID"
+            }
+          ],
+          "example": {
+            "id": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": [
+              {
+                "displayStatus": 2,
+                "recordId": 20,
+                "warningEventId": 10,
+                "hazardId": 1,
+                "rectificationTaskId": 30,
+                "operationBatchId": "00000000-0000-0000-0000-000000000000",
+                "operationType": 3,
+                "beforeStatus": 0,
+                "afterStatus": 1,
+                "operatorUserId": 8,
+                "operatorUserName": "李四",
+                "operationTime": "2026-07-28T10:00:00Z",
+                "remark": "已完成现场整改",
+                "reviewResult": null,
+                "rejectReason": null,
+                "medias": [
+                  "WarningEventMediaDto[]，字段见 models.WarningEventMediaDto"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "title": "查询预警的整改任务",
+          "method": "GET",
+          "path": "/api/warning-events/{warningEventId}/tasks",
+          "description": "返回该预警的整改任务；当前业务约束为一条。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "warningEventId",
+              "type": "number",
+              "required": true,
+              "description": "预警 ID"
+            }
+          ],
+          "example": {
+            "warningEventId": 10
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": [
+              "WarningRectificationTaskDto，字段见 models.WarningRectificationTaskDto"
+            ]
+          }
+        },
+        {
+          "title": "获取整改任务详情",
+          "method": "GET",
+          "path": "/api/warning-events/tasks/{taskId}",
+          "description": "按数据归属获取整改任务详情。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "params": [
+            {
+              "name": "taskId",
+              "type": "number",
+              "required": true,
+              "description": "整改任务 ID"
+            }
+          ],
+          "example": {
+            "taskId": 30
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": "WarningRectificationTaskDto，字段见 models.WarningRectificationTaskDto"
+          }
+        },
+        {
+          "title": "查询我的整改任务",
+          "method": "GET",
+          "path": "/api/warning-events/tasks/mine",
+          "description": "外业任务按 AssignedToUserId 返回；被分配的内业或外业用户都可看到。内业整改按权限返回。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            }
+          ],
+          "query": [
+            {
+              "name": "taskType",
+              "type": "number",
+              "required": false,
+              "description": "整改方式：0内业、1外业"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": false,
+              "description": "任务状态：0待提交、1已提交"
+            },
+            {
+              "name": "warningStatus",
+              "type": "number",
+              "required": false,
+              "description": "预警状态：0整改中、1待审核、2已整改"
+            },
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "任务、预警或隐患关键词"
+            },
+            {
+              "name": "page",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "page": 1,
+            "size": 10,
+            "status": 0
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": {
+              "pageIndex": 1,
+              "pageSize": 10,
+              "totalCount": 0,
+              "totalPages": 0,
+              "items": [
+                "WarningRectificationTaskDto[]，字段见 models.WarningRectificationTaskDto"
+              ],
+              "hasPrevPages": false,
+              "hasNextPages": false
+            }
+          }
+        },
+        {
+          "title": "提交整改材料",
+          "method": "POST",
+          "path": "/api/warning-events/tasks/{taskId}/submit",
+          "description": "提交说明和 1～10 张图片；单张不超过 3MB。外业任务只允许负责人提交。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "multipart/form-data",
+              "description": "整改材料表单"
+            }
+          ],
+          "params": [
+            {
+              "name": "taskId",
+              "type": "number",
+              "required": true,
+              "description": "整改任务 ID"
+            }
+          ],
+          "form": [
+            {
+              "name": "description",
+              "type": "string",
+              "required": true,
+              "description": "整改说明，最多 1000 字"
+            },
+            {
+              "name": "images",
+              "type": "file[]",
+              "required": true,
+              "description": "1～10 张；JPG/JPEG/PNG/WebP/BMP/GIF；单张不超过 3MB"
+            }
+          ],
+          "example": {
+            "taskId": 30,
+            "description": "已暂存危石并设置警戒",
+            "images": [
+              "rectification-1.jpg"
+            ]
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        },
+        {
+          "title": "审核整改材料",
+          "method": "POST",
+          "path": "/api/warning-events/{warningEventId}/review",
+          "description": "审核结果只允许通过或驳回。外业整改负责人不能审核自己提交的材料。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": true,
+              "default": "Bearer {{token}}",
+              "description": "登录后获取的 JWT"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "JSON 请求体"
+            }
+          ],
+          "params": [
+            {
+              "name": "warningEventId",
+              "type": "number",
+              "required": true,
+              "description": "预警 ID"
+            }
+          ],
+          "body": [
+            {
+              "name": "result",
+              "type": "number",
+              "required": true,
+              "description": "0通过、1驳回"
+            },
+            {
+              "name": "reviewRemark",
+              "type": "string",
+              "required": false,
+              "description": "审核意见，最多 500 字；驳回时必填"
+            }
+          ],
+          "example": {
+            "warningEventId": 10,
+            "result": 1,
+            "reviewRemark": "图片无法证明整改完成，请重新提交"
+          },
+          "response": {
+            "code": 200,
+            "message": "Success",
+            "isSuccess": true,
+            "timeStamp": "2026-07-28T10:00:00+08:00",
+            "data": true
+          }
+        }
+      ]
+    }
+  ]
+}

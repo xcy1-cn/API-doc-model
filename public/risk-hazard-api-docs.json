@@ -1,0 +1,1435 @@
+{
+  "projectName": "SmartMine 风险管理 / 隐患治理接口文档",
+  "description": "用于 SmartMine 风险管理与隐患治理模块前后端联调的轻量级接口文档，格式参考 api-docs.json。",
+  "groups": [
+    {
+      "name": "风险管理",
+      "apis": [
+        {
+          "title": "获取风险列表",
+          "method": "GET",
+          "path": "/api/Risk/GetList",
+          "description": "分页获取风险列表。支持关键字、类型、等级、状态、矿山、设备、部门等条件筛选。默认过滤已软删除数据。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "关键字，匹配风险标题或风险编号"
+            },
+            {
+              "name": "riskType",
+              "type": "number",
+              "required": false,
+              "description": "风险类型"
+            },
+            {
+              "name": "riskLevel",
+              "type": "number",
+              "required": false,
+              "description": "风险等级：1=低风险，2=一般风险，3=较大风险，4=重大风险"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": false,
+              "description": "风险状态：0=未管控，1=管控中，2=已管控，3=已关闭"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 Id"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 Id"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 Id"
+            },
+            {
+              "name": "pageIndex",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "keyword": "边坡",
+            "riskType": 1,
+            "riskLevel": 2,
+            "status": 0,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "pageIndex": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "total": 1,
+            "pageIndex": 1,
+            "pageSize": 10,
+            "items": [
+              {
+                "id": 1,
+                "title": "边坡坍塌风险",
+                "code": "RISK-TEST-001",
+                "riskType": 1,
+                "riskLevel": 2,
+                "status": 0,
+                "mineBasicInfoId": null,
+                "deviceId": null,
+                "departmentId": null,
+                "location": "测试区域",
+                "createTime": "2026-07-09T09:00:00Z",
+                "updateTime": null
+              }
+            ]
+          }
+        },
+        {
+          "title": "获取风险详情",
+          "method": "GET",
+          "path": "/api/Risk/GetDetail",
+          "description": "根据风险 Id 获取风险详情，同时返回风险管控记录列表。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "风险 Id"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "id": 1,
+            "title": "边坡坍塌风险",
+            "code": "RISK-TEST-001",
+            "riskType": 1,
+            "riskLevel": 2,
+            "status": 0,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "location": "测试区域",
+            "createTime": "2026-07-09T09:00:00Z",
+            "updateTime": null,
+            "description": "测试风险数据",
+            "longitude": 114.3001,
+            "latitude": 30.5001,
+            "altitude": null,
+            "controlMeasure": "加强巡检",
+            "responsibleUserId": null,
+            "createUserId": null,
+            "controlRecords": []
+          }
+        },
+        {
+          "title": "新增风险",
+          "method": "POST",
+          "path": "/api/Risk/Create",
+          "description": "新增一条风险数据。风险编号 Code 不允许与未删除数据重复。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "风险标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "风险编号"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "风险描述"
+            },
+            {
+              "name": "riskType",
+              "type": "number",
+              "required": true,
+              "description": "风险类型"
+            },
+            {
+              "name": "riskLevel",
+              "type": "number",
+              "required": true,
+              "description": "风险等级：1=低风险，2=一般风险，3=较大风险，4=重大风险"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": true,
+              "description": "风险状态：0=未管控，1=管控中，2=已管控，3=已关闭"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 Id"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 Id"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 Id"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "风险位置文字描述"
+            },
+            {
+              "name": "longitude",
+              "type": "number",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "number",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "number",
+              "required": false,
+              "description": "高程"
+            },
+            {
+              "name": "controlMeasure",
+              "type": "string",
+              "required": false,
+              "description": "管控措施"
+            },
+            {
+              "name": "responsibleUserId",
+              "type": "number",
+              "required": false,
+              "description": "责任人用户 Id"
+            },
+            {
+              "name": "createUserId",
+              "type": "number",
+              "required": false,
+              "description": "创建人用户 Id"
+            }
+          ],
+          "example": {
+            "title": "边坡坍塌风险",
+            "code": "RISK-TEST-001",
+            "description": "测试风险数据",
+            "riskType": 1,
+            "riskLevel": 2,
+            "status": 0,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "location": "测试区域",
+            "longitude": 114.3001,
+            "latitude": 30.5001,
+            "altitude": null,
+            "controlMeasure": "加强巡检",
+            "responsibleUserId": null,
+            "createUserId": null
+          },
+          "response": {
+            "message": "新增风险成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "修改风险",
+          "method": "POST",
+          "path": "/api/Risk/Update",
+          "description": "根据风险 Id 修改风险基础信息。风险编号 Code 不允许与其他未删除数据重复。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "风险 Id"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "风险标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "风险编号"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "风险描述"
+            },
+            {
+              "name": "riskType",
+              "type": "number",
+              "required": true,
+              "description": "风险类型"
+            },
+            {
+              "name": "riskLevel",
+              "type": "number",
+              "required": true,
+              "description": "风险等级"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": true,
+              "description": "风险状态"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 Id"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 Id"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 Id"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "风险位置文字描述"
+            },
+            {
+              "name": "longitude",
+              "type": "number",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "number",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "number",
+              "required": false,
+              "description": "高程"
+            },
+            {
+              "name": "controlMeasure",
+              "type": "string",
+              "required": false,
+              "description": "管控措施"
+            },
+            {
+              "name": "responsibleUserId",
+              "type": "number",
+              "required": false,
+              "description": "责任人用户 Id"
+            },
+            {
+              "name": "createUserId",
+              "type": "number",
+              "required": false,
+              "description": "创建人用户 Id"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "title": "边坡坍塌风险-已修改",
+            "code": "RISK-TEST-001",
+            "description": "测试风险数据-已修改",
+            "riskType": 1,
+            "riskLevel": 3,
+            "status": 1,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "location": "测试区域",
+            "longitude": 114.3001,
+            "latitude": 30.5001,
+            "altitude": null,
+            "controlMeasure": "加强巡检并设置警戒线",
+            "responsibleUserId": null,
+            "createUserId": null
+          },
+          "response": {
+            "message": "更新风险成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "删除风险",
+          "method": "POST",
+          "path": "/api/Risk/Delete",
+          "description": "根据风险 Id 软删除风险。删除后 GetList 不再返回该数据，GetDetail 返回不存在或已删除。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "风险 Id"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "message": "删除风险成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "新增风险管控记录",
+          "method": "POST",
+          "path": "/api/Risk/AddControlRecord",
+          "description": "新增风险管控记录，并根据 afterStatus 更新风险主表状态。建议后端使用事务保证风险状态和管控记录同时成功或同时失败。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "riskId",
+              "type": "number",
+              "required": true,
+              "description": "风险 Id"
+            },
+            {
+              "name": "afterStatus",
+              "type": "number",
+              "required": true,
+              "description": "处理后的风险状态"
+            },
+            {
+              "name": "controlMethod",
+              "type": "string",
+              "required": false,
+              "description": "管控方式"
+            },
+            {
+              "name": "controlResult",
+              "type": "string",
+              "required": true,
+              "description": "管控结果"
+            },
+            {
+              "name": "handleUserId",
+              "type": "number",
+              "required": false,
+              "description": "处理人用户 Id"
+            },
+            {
+              "name": "handleTime",
+              "type": "string",
+              "required": false,
+              "description": "处理时间，ISO 8601 格式"
+            },
+            {
+              "name": "reviewUserId",
+              "type": "number",
+              "required": false,
+              "description": "审核人用户 Id"
+            },
+            {
+              "name": "reviewResult",
+              "type": "string",
+              "required": false,
+              "description": "审核结果"
+            },
+            {
+              "name": "rejectReason",
+              "type": "string",
+              "required": false,
+              "description": "驳回原因"
+            }
+          ],
+          "example": {
+            "riskId": 1,
+            "afterStatus": 2,
+            "controlMethod": "现场巡检并设置警戒线",
+            "controlResult": "已完成风险管控",
+            "handleUserId": null,
+            "handleTime": "2026-07-09T10:00:00Z",
+            "reviewUserId": null,
+            "reviewResult": "通过",
+            "rejectReason": null
+          },
+          "response": {
+            "message": "新增风险管控记录成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "获取风险管控记录",
+          "method": "GET",
+          "path": "/api/Risk/GetControlRecords",
+          "description": "根据风险 Id 获取风险管控记录列表，按创建时间倒序返回。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "riskId",
+              "type": "number",
+              "required": true,
+              "description": "风险 Id"
+            }
+          ],
+          "example": {
+            "riskId": 1
+          },
+          "response": [
+            {
+              "id": 1,
+              "riskId": 1,
+              "beforeStatus": 1,
+              "afterStatus": 2,
+              "controlMethod": "现场巡检并设置警戒线",
+              "controlResult": "已完成风险管控",
+              "handleUserId": null,
+              "handleTime": "2026-07-09T10:00:00Z",
+              "reviewUserId": null,
+              "reviewResult": "通过",
+              "rejectReason": null,
+              "createTime": "2026-07-09T10:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "隐患治理",
+      "apis": [
+        {
+          "title": "获取隐患列表",
+          "method": "GET",
+          "path": "/api/Hazard/GetList",
+          "description": "分页获取隐患列表。支持关键字、类型、等级、状态、矿山、设备、部门、告警事件、关联风险、被分派人等条件筛选。默认过滤已软删除数据。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": false,
+              "description": "关键字，匹配隐患标题或隐患编号"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": false,
+              "description": "隐患类型"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": false,
+              "description": "隐患等级：1=一般隐患，2=较大隐患，3=重大隐患"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": false,
+              "description": "隐患状态：0=待分派，1=待整改，2=整改中，3=待审核，4=已完成，5=已驳回，6=已关闭"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 Id"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 Id"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 Id"
+            },
+            {
+              "name": "warningEventId",
+              "type": "number",
+              "required": false,
+              "description": "告警事件 Id"
+            },
+            {
+              "name": "riskId",
+              "type": "number",
+              "required": false,
+              "description": "关联风险 Id"
+            },
+            {
+              "name": "assignedToUserId",
+              "type": "number",
+              "required": false,
+              "description": "被分派人 / 整改负责人用户 Id，可用于查询我的隐患"
+            },
+            {
+              "name": "pageIndex",
+              "type": "number",
+              "required": false,
+              "description": "页码，默认 1"
+            },
+            {
+              "name": "pageSize",
+              "type": "number",
+              "required": false,
+              "description": "每页数量，默认 10"
+            }
+          ],
+          "example": {
+            "keyword": "排水沟",
+            "hazardType": 1,
+            "hazardLevel": 1,
+            "status": 0,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "warningEventId": null,
+            "riskId": null,
+            "assignedToUserId": null,
+            "pageIndex": 1,
+            "pageSize": 10
+          },
+          "response": {
+            "total": 1,
+            "pageIndex": 1,
+            "pageSize": 10,
+            "items": [
+              {
+                "id": 1,
+                "title": "排水沟堵塞隐患",
+                "code": "HAZARD-TEST-001",
+                "hazardType": 1,
+                "hazardLevel": 1,
+                "status": 0,
+                "mineBasicInfoId": null,
+                "deviceId": null,
+                "departmentId": null,
+                "warningEventId": null,
+                "riskId": null,
+                "location": "测试区域",
+                "assignedToUserId": null,
+                "deadlineTime": null,
+                "createTime": "2026-07-09T09:00:00Z",
+                "updateTime": null
+              }
+            ]
+          }
+        },
+        {
+          "title": "获取隐患详情",
+          "method": "GET",
+          "path": "/api/Hazard/GetDetail",
+          "description": "根据隐患 Id 获取隐患详情，同时返回隐患治理记录列表。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "id": 1,
+            "title": "排水沟堵塞隐患",
+            "code": "HAZARD-TEST-001",
+            "hazardType": 1,
+            "hazardLevel": 1,
+            "status": 0,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "warningEventId": null,
+            "riskId": null,
+            "location": "测试区域",
+            "assignedToUserId": null,
+            "deadlineTime": null,
+            "createTime": "2026-07-09T09:00:00Z",
+            "updateTime": null,
+            "description": "测试隐患数据",
+            "longitude": 114.3001,
+            "latitude": 30.5001,
+            "altitude": null,
+            "rectificationRequirement": "清理排水沟",
+            "assignUserId": null,
+            "assignedTime": null,
+            "handleTime": null,
+            "reviewUserId": null,
+            "rejectReason": null,
+            "createUserId": null,
+            "handleRecords": []
+          }
+        },
+        {
+          "title": "新增隐患",
+          "method": "POST",
+          "path": "/api/Hazard/Create",
+          "description": "新增一条隐患数据。隐患编号 Code 不允许与未删除数据重复。如传入 WarningEventId 或 RiskId，后端需要校验关联数据是否存在。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "隐患标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "隐患编号"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "隐患描述"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": true,
+              "description": "隐患类型"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": true,
+              "description": "隐患等级：1=一般隐患，2=较大隐患，3=重大隐患"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": true,
+              "description": "隐患状态：0=待分派，1=待整改，2=整改中，3=待审核，4=已完成，5=已驳回，6=已关闭"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 Id"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 Id"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 Id"
+            },
+            {
+              "name": "warningEventId",
+              "type": "number",
+              "required": false,
+              "description": "告警事件 Id，用于支持告警事件转隐患"
+            },
+            {
+              "name": "riskId",
+              "type": "number",
+              "required": false,
+              "description": "关联风险 Id"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "隐患位置文字描述"
+            },
+            {
+              "name": "longitude",
+              "type": "number",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "number",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "number",
+              "required": false,
+              "description": "高程"
+            },
+            {
+              "name": "rectificationRequirement",
+              "type": "string",
+              "required": false,
+              "description": "整改要求"
+            },
+            {
+              "name": "assignUserId",
+              "type": "number",
+              "required": false,
+              "description": "分派人用户 Id"
+            },
+            {
+              "name": "assignedToUserId",
+              "type": "number",
+              "required": false,
+              "description": "被分派人 / 整改负责人用户 Id"
+            },
+            {
+              "name": "assignedTime",
+              "type": "string",
+              "required": false,
+              "description": "分派时间，ISO 8601 格式"
+            },
+            {
+              "name": "deadlineTime",
+              "type": "string",
+              "required": false,
+              "description": "整改截止时间，ISO 8601 格式"
+            },
+            {
+              "name": "createUserId",
+              "type": "number",
+              "required": false,
+              "description": "创建人用户 Id"
+            }
+          ],
+          "example": {
+            "title": "排水沟堵塞隐患",
+            "code": "HAZARD-TEST-001",
+            "description": "测试隐患数据",
+            "hazardType": 1,
+            "hazardLevel": 1,
+            "status": 0,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "warningEventId": null,
+            "riskId": null,
+            "location": "测试区域",
+            "longitude": 114.3001,
+            "latitude": 30.5001,
+            "altitude": null,
+            "rectificationRequirement": "清理排水沟",
+            "assignUserId": null,
+            "assignedToUserId": null,
+            "assignedTime": null,
+            "deadlineTime": null,
+            "createUserId": null
+          },
+          "response": {
+            "message": "新增隐患成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "修改隐患",
+          "method": "POST",
+          "path": "/api/Hazard/Update",
+          "description": "根据隐患 Id 修改隐患基础信息。隐患编号 Code 不允许与其他未删除数据重复。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "required": true,
+              "description": "隐患标题"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "required": true,
+              "description": "隐患编号"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "description": "隐患描述"
+            },
+            {
+              "name": "hazardType",
+              "type": "number",
+              "required": true,
+              "description": "隐患类型"
+            },
+            {
+              "name": "hazardLevel",
+              "type": "number",
+              "required": true,
+              "description": "隐患等级"
+            },
+            {
+              "name": "status",
+              "type": "number",
+              "required": true,
+              "description": "隐患状态"
+            },
+            {
+              "name": "mineBasicInfoId",
+              "type": "number",
+              "required": false,
+              "description": "矿山基础信息 Id"
+            },
+            {
+              "name": "deviceId",
+              "type": "number",
+              "required": false,
+              "description": "设备 Id"
+            },
+            {
+              "name": "departmentId",
+              "type": "number",
+              "required": false,
+              "description": "部门 Id"
+            },
+            {
+              "name": "warningEventId",
+              "type": "number",
+              "required": false,
+              "description": "告警事件 Id"
+            },
+            {
+              "name": "riskId",
+              "type": "number",
+              "required": false,
+              "description": "关联风险 Id"
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "required": false,
+              "description": "隐患位置文字描述"
+            },
+            {
+              "name": "longitude",
+              "type": "number",
+              "required": false,
+              "description": "经度"
+            },
+            {
+              "name": "latitude",
+              "type": "number",
+              "required": false,
+              "description": "纬度"
+            },
+            {
+              "name": "altitude",
+              "type": "number",
+              "required": false,
+              "description": "高程"
+            },
+            {
+              "name": "rectificationRequirement",
+              "type": "string",
+              "required": false,
+              "description": "整改要求"
+            },
+            {
+              "name": "assignUserId",
+              "type": "number",
+              "required": false,
+              "description": "分派人用户 Id"
+            },
+            {
+              "name": "assignedToUserId",
+              "type": "number",
+              "required": false,
+              "description": "被分派人 / 整改负责人用户 Id"
+            },
+            {
+              "name": "assignedTime",
+              "type": "string",
+              "required": false,
+              "description": "分派时间，ISO 8601 格式"
+            },
+            {
+              "name": "deadlineTime",
+              "type": "string",
+              "required": false,
+              "description": "整改截止时间，ISO 8601 格式"
+            },
+            {
+              "name": "createUserId",
+              "type": "number",
+              "required": false,
+              "description": "创建人用户 Id"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "title": "排水沟堵塞隐患-已修改",
+            "code": "HAZARD-TEST-001",
+            "description": "测试隐患数据-已修改",
+            "hazardType": 1,
+            "hazardLevel": 2,
+            "status": 1,
+            "mineBasicInfoId": null,
+            "deviceId": null,
+            "departmentId": null,
+            "warningEventId": null,
+            "riskId": null,
+            "location": "测试区域",
+            "longitude": 114.3001,
+            "latitude": 30.5001,
+            "altitude": null,
+            "rectificationRequirement": "清理排水沟并复查",
+            "assignUserId": null,
+            "assignedToUserId": null,
+            "assignedTime": null,
+            "deadlineTime": null,
+            "createUserId": null
+          },
+          "response": {
+            "message": "更新隐患成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "删除隐患",
+          "method": "POST",
+          "path": "/api/Hazard/Delete",
+          "description": "根据隐患 Id 软删除隐患。删除后 GetList 不再返回该数据，GetDetail 返回不存在或已删除。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "id",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            }
+          ],
+          "example": {
+            "id": 1
+          },
+          "response": {
+            "message": "删除隐患成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "分派隐患",
+          "method": "POST",
+          "path": "/api/Hazard/Assign",
+          "description": "分派隐患给整改负责人，并更新隐患状态为待整改。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            },
+            {
+              "name": "assignUserId",
+              "type": "number",
+              "required": true,
+              "description": "分派人用户 Id"
+            },
+            {
+              "name": "assignedToUserId",
+              "type": "number",
+              "required": true,
+              "description": "被分派人 / 整改负责人用户 Id"
+            },
+            {
+              "name": "assignedTime",
+              "type": "string",
+              "required": false,
+              "description": "分派时间，ISO 8601 格式；为空时后端可使用当前时间"
+            },
+            {
+              "name": "deadlineTime",
+              "type": "string",
+              "required": false,
+              "description": "整改截止时间，ISO 8601 格式"
+            }
+          ],
+          "example": {
+            "hazardId": 1,
+            "assignUserId": 1,
+            "assignedToUserId": 2,
+            "assignedTime": "2026-07-09T10:00:00Z",
+            "deadlineTime": "2026-07-16T10:00:00Z"
+          },
+          "response": {
+            "message": "分派隐患成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "处理隐患",
+          "method": "POST",
+          "path": "/api/Hazard/Handle",
+          "description": "提交隐患整改处理结果，新增隐患治理记录，并更新隐患状态为待审核。建议后端使用事务保证隐患状态和治理记录同时成功或同时失败。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            },
+            {
+              "name": "handleMethod",
+              "type": "string",
+              "required": false,
+              "description": "处理方式"
+            },
+            {
+              "name": "handleResult",
+              "type": "string",
+              "required": true,
+              "description": "处理结果"
+            },
+            {
+              "name": "handleUserId",
+              "type": "number",
+              "required": false,
+              "description": "处理人用户 Id"
+            },
+            {
+              "name": "handleTime",
+              "type": "string",
+              "required": false,
+              "description": "处理时间，ISO 8601 格式；为空时后端可使用当前时间"
+            }
+          ],
+          "example": {
+            "hazardId": 1,
+            "handleMethod": "现场清理",
+            "handleResult": "排水沟已完成清理",
+            "handleUserId": 2,
+            "handleTime": "2026-07-10T10:00:00Z"
+          },
+          "response": {
+            "message": "处理隐患成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "审核隐患",
+          "method": "POST",
+          "path": "/api/Hazard/Review",
+          "description": "审核隐患整改结果。审核通过则状态变为已完成；审核驳回则状态变为已驳回，并记录驳回原因。建议后端使用事务保证隐患状态和治理记录同时成功或同时失败。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            },
+            {
+              "name": "Content-Type",
+              "type": "string",
+              "required": true,
+              "default": "application/json",
+              "description": "请求体类型"
+            }
+          ],
+          "body": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            },
+            {
+              "name": "isPass",
+              "type": "boolean",
+              "required": true,
+              "description": "是否审核通过"
+            },
+            {
+              "name": "reviewUserId",
+              "type": "number",
+              "required": false,
+              "description": "审核人用户 Id"
+            },
+            {
+              "name": "reviewResult",
+              "type": "string",
+              "required": false,
+              "description": "审核结果说明"
+            },
+            {
+              "name": "rejectReason",
+              "type": "string",
+              "required": false,
+              "description": "驳回原因；isPass=false 时建议填写"
+            }
+          ],
+          "example": {
+            "hazardId": 1,
+            "isPass": true,
+            "reviewUserId": 3,
+            "reviewResult": "整改合格",
+            "rejectReason": null
+          },
+          "response": {
+            "message": "审核隐患成功",
+            "id": 1
+          }
+        },
+        {
+          "title": "获取隐患治理记录",
+          "method": "GET",
+          "path": "/api/Hazard/GetHandleRecords",
+          "description": "根据隐患 Id 获取隐患治理记录列表，按创建时间倒序返回。",
+          "headers": [
+            {
+              "name": "Authorization",
+              "type": "string",
+              "required": false,
+              "default": "Bearer {{token}}",
+              "description": "登录 token，如接口启用鉴权则需要携带"
+            }
+          ],
+          "query": [
+            {
+              "name": "hazardId",
+              "type": "number",
+              "required": true,
+              "description": "隐患 Id"
+            }
+          ],
+          "example": {
+            "hazardId": 1
+          },
+          "response": [
+            {
+              "id": 1,
+              "hazardId": 1,
+              "beforeStatus": 1,
+              "afterStatus": 3,
+              "handleMethod": "现场清理",
+              "handleResult": "排水沟已完成清理",
+              "handleUserId": 2,
+              "handleTime": "2026-07-10T10:00:00Z",
+              "reviewUserId": null,
+              "reviewResult": null,
+              "rejectReason": null,
+              "createTime": "2026-07-10T10:00:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
