@@ -268,10 +268,28 @@
             "data": {
               "pageIndex": 1,
               "pageSize": 10,
-              "totalCount": 0,
-              "totalPages": 0,
+              "totalCount": 1,
+              "totalPages": 1,
               "items": [
-                "HazardListDto[]，字段见 models.HazardListDto"
+                {
+                  "id": 1,
+                  "title": "边坡落石隐患",
+                  "code": "HZ-20260728-A1B2C3-2",
+                  "hazardType": 1,
+                  "hazardLevel": 2,
+                  "status": 1,
+                  "displayStatus": 1,
+                  "sourceType": 1,
+                  "mineBasicInfoId": null,
+                  "deviceId": null,
+                  "sourceEventId": null,
+                  "departmentId": 3,
+                  "location": "一号采区东侧边坡",
+                  "hasWarning": true,
+                  "warningEventId": 10,
+                  "createTime": "2026-07-28T09:30:00+08:00",
+                  "updateTime": "2026-07-28T10:00:00+08:00"
+                }
               ],
               "hasPrevPages": false,
               "hasNextPages": false
@@ -308,7 +326,40 @@
             "message": "Success",
             "isSuccess": true,
             "timeStamp": "2026-07-28T10:00:00+08:00",
-            "data": "HazardDetailDto，字段见 models.HazardDetailDto"
+            "data": {
+              "id": 1,
+              "title": "边坡落石隐患",
+              "code": "HZ-20260728-A1B2C3-2",
+              "hazardType": 1,
+              "hazardLevel": 2,
+              "status": 1,
+              "displayStatus": 1,
+              "sourceType": 1,
+              "mineBasicInfoId": null,
+              "deviceId": null,
+              "sourceEventId": null,
+              "departmentId": 3,
+              "location": "一号采区东侧边坡",
+              "hasWarning": true,
+              "warningEventId": 10,
+              "createTime": "2026-07-28T09:30:00+08:00",
+              "updateTime": "2026-07-28T10:00:00+08:00",
+              "description": "边坡上方存在松动岩块，有滚落风险",
+              "longitude": 106.551234,
+              "latitude": 29.561234,
+              "altitude": 428.5,
+              "rectificationRequirement": "清理松动岩块并设置警戒区域",
+              "reviewUserId": 2,
+              "rejectReason": null,
+              "createUserId": 8,
+              "warning": {
+                "warningEventId": 10,
+                "warningTitle": "边坡落石隐患",
+                "warningLevel": 2,
+                "status": 0,
+                "createTime": "2026-07-28T10:00:00+08:00"
+              }
+            }
           }
         },
         {
@@ -857,7 +908,24 @@
             "timeStamp": "2026-07-28T10:00:00+08:00",
             "data": {
               "warningEventId": 10,
-              "task": "WarningRectificationTaskDto，字段见 models.WarningRectificationTaskDto"
+              "task": {
+                "id": 30,
+                "warningEventId": 10,
+                "warningTitle": "边坡落石隐患",
+                "warningLevel": 2,
+                "warningStatus": 0,
+                "hazardId": 1,
+                "hazardTitle": "边坡落石隐患",
+                "hazardCode": "HZ-20260728-A1B2C3-2",
+                "taskType": 1,
+                "assignedToUserId": 8,
+                "assignedToUserName": "李四",
+                "status": 0,
+                "assignedByUserId": 2,
+                "assignedTime": "2026-07-28T10:00:00+08:00",
+                "createTime": "2026-07-28T10:00:00+08:00",
+                "updateTime": null
+              }
             }
           }
         },
@@ -994,10 +1062,24 @@
             "data": {
               "pageIndex": 1,
               "pageSize": 10,
-              "totalCount": 0,
-              "totalPages": 0,
+              "totalCount": 1,
+              "totalPages": 1,
               "items": [
-                "WarningEventListDto[]，字段见 models.WarningEventListDto"
+                {
+                  "id": 10,
+                  "hazardId": 1,
+                  "hazardTitle": "边坡落石隐患",
+                  "hazardCode": "HZ-20260728-A1B2C3-2",
+                  "title": "边坡落石隐患",
+                  "type": "HazardTransfer",
+                  "warningLevel": 2,
+                  "status": 0,
+                  "displayStatus": 1,
+                  "taskCount": 1,
+                  "submittedTaskCount": 0,
+                  "createTime": "2026-07-28T10:00:00+08:00",
+                  "updateTime": null
+                }
               ],
               "hasPrevPages": false,
               "hasNextPages": false
@@ -1034,7 +1116,43 @@
             "message": "Success",
             "isSuccess": true,
             "timeStamp": "2026-07-28T10:00:00+08:00",
-            "data": "WarningEventDetailDto，字段见 models.WarningEventDetailDto"
+            "data": {
+              "id": 10,
+              "hazardId": 1,
+              "hazardTitle": "边坡落石隐患",
+              "hazardCode": "HZ-20260728-A1B2C3-2",
+              "title": "边坡落石隐患",
+              "type": "HazardTransfer",
+              "warningLevel": 2,
+              "status": 0,
+              "displayStatus": 1,
+              "taskCount": 1,
+              "submittedTaskCount": 0,
+              "createTime": "2026-07-28T10:00:00+08:00",
+              "updateTime": null,
+              "message": "边坡上方存在松动岩块，有滚落风险",
+              "rejectReason": null,
+              "tasks": [
+                {
+                  "id": 30,
+                  "warningEventId": 10,
+                  "warningTitle": "边坡落石隐患",
+                  "warningLevel": 2,
+                  "warningStatus": 0,
+                  "hazardId": 1,
+                  "hazardTitle": "边坡落石隐患",
+                  "hazardCode": "HZ-20260728-A1B2C3-2",
+                  "taskType": 1,
+                  "assignedToUserId": 8,
+                  "assignedToUserName": "李四",
+                  "status": 0,
+                  "assignedByUserId": 2,
+                  "assignedTime": "2026-07-28T10:00:00+08:00",
+                  "createTime": "2026-07-28T10:00:00+08:00",
+                  "updateTime": null
+                }
+              ]
+            }
           }
         },
         {
@@ -1085,7 +1203,14 @@
                 "reviewResult": null,
                 "rejectReason": null,
                 "medias": [
-                  "WarningEventMediaDto[]，字段见 models.WarningEventMediaDto"
+                  {
+                    "id": 40,
+                    "mediaUrl": "/file/warning-events/10/rectification-01.jpg",
+                    "fileName": "整改现场照片.jpg",
+                    "contentType": "image/jpeg",
+                    "fileSize": 2457600,
+                    "sortOrder": 0
+                  }
                 ]
               }
             ]
@@ -1122,7 +1247,24 @@
             "isSuccess": true,
             "timeStamp": "2026-07-28T10:00:00+08:00",
             "data": [
-              "WarningRectificationTaskDto，字段见 models.WarningRectificationTaskDto"
+              {
+                "id": 30,
+                "warningEventId": 10,
+                "warningTitle": "边坡落石隐患",
+                "warningLevel": 2,
+                "warningStatus": 0,
+                "hazardId": 1,
+                "hazardTitle": "边坡落石隐患",
+                "hazardCode": "HZ-20260728-A1B2C3-2",
+                "taskType": 1,
+                "assignedToUserId": 8,
+                "assignedToUserName": "李四",
+                "status": 0,
+                "assignedByUserId": 2,
+                "assignedTime": "2026-07-28T10:00:00+08:00",
+                "createTime": "2026-07-28T10:00:00+08:00",
+                "updateTime": null
+              }
             ]
           }
         },
@@ -1156,7 +1298,24 @@
             "message": "Success",
             "isSuccess": true,
             "timeStamp": "2026-07-28T10:00:00+08:00",
-            "data": "WarningRectificationTaskDto，字段见 models.WarningRectificationTaskDto"
+            "data": {
+              "id": 30,
+              "warningEventId": 10,
+              "warningTitle": "边坡落石隐患",
+              "warningLevel": 2,
+              "warningStatus": 0,
+              "hazardId": 1,
+              "hazardTitle": "边坡落石隐患",
+              "hazardCode": "HZ-20260728-A1B2C3-2",
+              "taskType": 1,
+              "assignedToUserId": 8,
+              "assignedToUserName": "李四",
+              "status": 0,
+              "assignedByUserId": 2,
+              "assignedTime": "2026-07-28T10:00:00+08:00",
+              "createTime": "2026-07-28T10:00:00+08:00",
+              "updateTime": null
+            }
           }
         },
         {
@@ -1224,10 +1383,27 @@
             "data": {
               "pageIndex": 1,
               "pageSize": 10,
-              "totalCount": 0,
-              "totalPages": 0,
+              "totalCount": 1,
+              "totalPages": 1,
               "items": [
-                "WarningRectificationTaskDto[]，字段见 models.WarningRectificationTaskDto"
+                {
+                  "id": 30,
+                  "warningEventId": 10,
+                  "warningTitle": "边坡落石隐患",
+                  "warningLevel": 2,
+                  "warningStatus": 0,
+                  "hazardId": 1,
+                  "hazardTitle": "边坡落石隐患",
+                  "hazardCode": "HZ-20260728-A1B2C3-2",
+                  "taskType": 1,
+                  "assignedToUserId": 8,
+                  "assignedToUserName": "李四",
+                  "status": 0,
+                  "assignedByUserId": 2,
+                  "assignedTime": "2026-07-28T10:00:00+08:00",
+                  "createTime": "2026-07-28T10:00:00+08:00",
+                  "updateTime": null
+                }
               ],
               "hasPrevPages": false,
               "hasNextPages": false
@@ -1238,7 +1414,7 @@
           "title": "提交整改材料",
           "method": "POST",
           "path": "/api/warning-events/tasks/{taskId}/submit",
-          "description": "提交说明和 1～10 张图片；单张不超过 3MB。外业任务只允许负责人提交。",
+          "description": "提交说明和 1～10 张图片；单张不超过 10MB。外业任务只允许负责人提交。",
           "headers": [
             {
               "name": "Authorization",
@@ -1274,7 +1450,7 @@
               "name": "images",
               "type": "file[]",
               "required": true,
-              "description": "1～10 张；JPG/JPEG/PNG/WebP/BMP/GIF；单张不超过 3MB"
+              "description": "1～10 张；JPG/JPEG/PNG/WebP/BMP/GIF；单张不超过 10MB"
             }
           ],
           "example": {
